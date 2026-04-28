@@ -1,0 +1,35 @@
+# Ignore datasets and large model files
+data/
+datasets/
+*.csv
+*.zip
+*.npy
+*.npz
+*.h5
+*.keras
+!model/final_best_efficientnetb0_model_final.keras
+*.pkl
+*.pt
+*.onnx
+*.ckpt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+.env
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
