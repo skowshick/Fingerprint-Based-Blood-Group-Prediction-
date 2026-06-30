@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Mode - Blood Prediction System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Emergency flashing animation */
+        @keyframes emergency-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            50% { box-shadow: 0 0 0 30px rgba(255, 255, 255, 0); }
+        }
+
+        .emergency-header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .emergency-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            animation: emergency-pulse 2s infinite;
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+        }
+
+        .emergency-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .emergency-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .emergency-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .emergency-form {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Fix dropdown options visibility */
+        .form-select option {
+            background: white;
+            color: #333;
+            padding: 8px 12px;
+            font-size: 1rem;
+        }
+
+        .form-select option:hover {
+            background: #f0f0f0;
+            color: #000;
+        }
+
+        /* Ensure placeholder/default option styling */
+        .form-select option[value=""] {
+            color: #666;
+            font-style: italic;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .urgency-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .urgency-option {
+            padding: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            position: relative;
+            font-size: 1rem;
+        }
+
+        .urgency-option i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .urgency-option:hover {
+            border-color: white;
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .urgency-option.selected {
+            background: white;
+            color: #dc2626;
+            border-color: white;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            transform: scale(1.08);
+        }
+
+        .urgency-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #10b981;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .urgency-option.critical {
+            border-color: #fbbf24;
+        }
+
+        .urgency-option.critical.selected {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #7c2d12;
+        }
+
+        .emergency-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1.5rem 3rem;
+            border: 3px solid white;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .emergency-btn:hover {
+            background: white;
+            color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .loading-content h3 {
+            color: #dc2626;
+            margin: 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .loading-content p {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+
+        .spinner > div {
+            width: 18px;
+            height: 18px;
+            background-color: #dc2626;
+            border-radius: 100%;
+            display: inline-block;
+            animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+        }
+
+        .spinner .bounce1 {
+            animation-delay: -0.32s;
+        }
+
+        .spinner .bounce2 {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes sk-bouncedelay {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            border-radius: 3px;
+            animation: progress-animation 2s infinite;
+        }
+
+        @keyframes progress-animation {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .quick-action {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .quick-action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-action-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 3rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .results-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            padding: 2rem;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .resource-item {
+            padding: 1.5rem;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border-left: 5px solid #10b981;
+            transition: all 0.3s ease;
+        }
+
+        .resource-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .resource-item strong {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fbbf24;
+        }
+
+        .resource-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.3rem 0;
+            font-size: 1rem;
+        }
+
+        .resource-info i {
+            width: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            opacity: 0.8;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            margin: 5% auto;
+            padding: 0;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.4s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideDown {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Fix modal dropdown options visibility */
+        .modal-input.modal-select option,
+        select.modal-input option {
+            background: white !important;
+            color: #333 !important;
+            padding: 10px 12px;
+            font-size: 1.1rem;
+            border: none;
+        }
+
+        select.modal-input option:hover {
+            background: #f0f0f0 !important;
+            color: #000 !important;
+        }
+
+        select.modal-input option[value=""] {
+            color: #666 !important;
+            font-style: italic;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: white;
+            color: #dc2626;
+        }
+
+        .modal-btn-primary:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .notification-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: white;
+        }
+
+        /* View Location Button Styles */
+        .view-location-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .view-location-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .emergency-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .urgency-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="emergency-header">
+        <h1 class="emergency-title">
+            <i class="fas fa-exclamation-triangle"></i>
+            EMERGENCY MODE
+        </h1>
+        <p class="emergency-subtitle">Immediate blood assistance and donor network access</p>
+    </div>
+
+    <div class="container">
+        <a href="/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="quick-action" onclick="showEmergencyForm()">
+                <div class="quick-action-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="quick-action-title">Request Emergency Blood</div>
+                <div>Submit urgent blood requirement</div>
+            </div>
+            
+            <div class="quick-action" onclick="callEmergency()">
+                <div class="quick-action-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="quick-action-title">Call 108 Emergency</div>
+                <div>Direct emergency services</div>
+            </div>
+            
+            <div class="quick-action" onclick="findBloodBanks()">
+                <div class="quick-action-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="quick-action-title">Nearby Blood Banks</div>
+                <div>Locate blood banks in area</div>
+            </div>
+            
+            <div class="quick-action" onclick="window.location.href='{{ url_for("main.dashboard") }}'">
+                <div class="quick-action-icon">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <div class="quick-action-title">Quick Blood Test</div>
+                <div>Determine blood group fast</div>
+            </div>
+        </div>
+
+        <!-- Emergency Request Form -->
+        <div id="emergency-form-section" style="display: none;">
+            <div class="emergency-card">
+                <h2 class="card-title">Emergency Blood Request</h2>
+                <p class="card-description">Fill out this form to request immediate blood assistance. Our network will be notified instantly.</p>
+                
+                <form class="emergency-form" id="emergencyForm" onsubmit="return false;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Patient Name</label>
+                            <input type="text" class="form-input" id="patient_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Blood Group Needed</label>
+                            <select class="form-select" id="blood_group" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Contact Phone</label>
+                            <input type="tel" class="form-input" id="contact_phone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Units Needed</label>
+                            <select class="form-select" id="units_needed">
+                                <option value="1">1 Unit</option>
+                                <option value="2">2 Units</option>
+                                <option value="3">3 Units</option>
+                                <option value="4">4 Units</option>
+                                <option value="5">5+ Units</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Hospital Name</label>
+                            <input type="text" class="form-input" id="hospital_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Area Pincode</label>
+                            <input type="text" class="form-input" id="pincode" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Hospital Address</label>
+                        <textarea class="form-textarea" id="hospital_address" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Urgency Level</label>
+                        <div class="urgency-selector">
+                            <div class="urgency-option critical" data-urgency="Critical">
+                                <i class="fas fa-exclamation-triangle"></i><br>
+                                CRITICAL<br>
+                                <small>Life threatening</small>
+                            </div>
+                            <div class="urgency-option" data-urgency="High">
+                                <i class="fas fa-clock"></i><br>
+                                HIGH<br>
+                                <small>Within hours</small>
+                            </div>
+                            <div class="urgency-option" data-urgency="Medium">
+                                <i class="fas fa-calendar"></i><br>
+                                MEDIUM<br>
+                                <small>Within day</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="emergency-btn" id="emergencySubmitBtn">
+                        <span id="submitBtnContent">
+                            <i class="fas fa-paper-plane"></i>
+                            SUBMIT EMERGENCY REQUEST
+                        </span>
+                        <span id="submitBtnLoading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            FINDING LOCAL MATCHES...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner">
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>
+                <h3>🔍 Searching Local Area</h3>
+                <p>Finding blood donors and banks in your pincode...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="results-section">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">
+                <i class="fas fa-check-circle" style="color: #10b981;"></i> 
+                Emergency Response Activated
+            </h2>
+            <p style="font-size: 1.2rem; margin-bottom: 1rem;">Your request has been submitted. Here are immediate resources:</p>
+            <div id="notification-status" class="notification-badge">
+                <i class="fas fa-envelope"></i> Notifications sent!
+            </div>
+            
+            <div class="results-grid">
+                <div class="results-card">
+                    <h3><i class="fas fa-hospital"></i> Nearby Blood Banks</h3>
+                    <div id="blood-banks-list">
+                        <div class="no-results">Searching for blood banks...</div>
+                    </div>
+                </div>
+                
+                <div class="results-card">
+                    <h3><i class="fas fa-users"></i> Available Donors</h3>
+                    <div id="donors-list">
+                        <div class="no-results">Searching for donors...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Find Blood Banks -->
+    <div id="bloodBankModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-hospital"></i> Find Nearby Blood Banks</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label class="form-label" style="display: block; margin-bottom: 1rem;">
+                    Enter your pincode to find nearby blood banks:
+                </label>
+                <input type="text" id="modal-pincode" class="modal-input" placeholder="Enter pincode (e.g., 123456)" maxlength="6">
+                <label class="form-label" style="display: block; margin-bottom: 1rem;">
+                    Blood Group (Optional):
+                </label>
+                <select id="modal-blood-group" class="modal-input" style="margin-bottom: 2rem;">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-primary" onclick="searchBloodBanks()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button class="modal-btn modal-btn-secondary" onclick="closeModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedUrgency = '';
+
+        // Urgency level selection
+        document.querySelectorAll('.urgency-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.urgency-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedUrgency = this.dataset.urgency;
+            });
+        });
+
+        function showEmergencyForm() {
+            document.getElementById('emergency-form-section').style.display = 'block';
+            document.getElementById('emergency-form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function callEmergency() {
+            if (confirm('This will attempt to call emergency services (108). Continue?')) {
+                window.open('tel:108');
+            }
+        }
+
+        function findBloodBanks() {
+            // Auto-detect location and find nearby blood banks
+            if (!navigator.geolocation) {
+                alert('Location services not supported. Please enable location access.');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('notification-status').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting your location...';
+            document.getElementById('blood-banks-list').innerHTML = '<div class="no-results"><i class="fas fa-spinner fa-spin"></i><br>Getting your location...</div>';
+            document.getElementById('donors-list').innerHTML = '<div class="no-results"><i class="fas fa-spinner fa-spin"></i><br>Getting your location...</div>';
+
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    try {
+                        // Search using coordinates directly (no need for reverse geocoding)
+                        console.log(`Location detected: lat=${lat}, lng=${lng}`);
+                        const searchResponse = await fetch(`{{ url_for("emergency.search_resources") }}?latitude=${lat}&longitude=${lng}`);
+                        const result = await searchResponse.json();
+                        
+                        if (result.success) {
+                            displaySearchResults(result);
+                        } else {
+                            throw new Error(result.error || 'Search failed');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        document.getElementById('notification-status').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Search failed: ' + error.message;
+                        document.getElementById('blood-banks-list').innerHTML = '<div class="no-results"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i><br>Search failed. Please try again.</div>';
+                        document.getElementById('donors-list').innerHTML = '<div class="no-results"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i><br>Search failed. Please try again.</div>';
+                    }
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    let errorMessage = 'Please turn on your location and try again.';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorMessage = 'Please turn on your location and refresh the page to find nearby resources.';
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        errorMessage = 'Location information is unavailable. Please try again or check your GPS settings.';
+                    } else if (error.code === error.TIMEOUT) {
+                        errorMessage = 'Location request timed out. Please try again.';
+                    }
+                    
+                    // Show error message
+                    document.getElementById('notification-status').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> ' + errorMessage;
+                    document.getElementById('blood-banks-list').innerHTML = '<div class="no-results"><i class="fas fa-location-slash" style="color: #ef4444;"></i><br>Location access required.<br><small>Please turn on your location and try again.</small></div>';
+                    document.getElementById('donors-list').innerHTML = '<div class="no-results"><i class="fas fa-location-slash" style="color: #ef4444;"></i><br>Location access required.<br><small>Please turn on your location and try again.</small></div>';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        function closeModal() {
+            document.getElementById('bloodBankModal').style.display = 'none';
+        }
+
+        async function searchBloodBanks() {
+            const pincode = document.getElementById('modal-pincode').value;
+            const bloodGroup = document.getElementById('modal-blood-group').value;
+            
+            if (!pincode) {
+                alert('Please enter a pincode');
+                return;
+            }
+            
+            if (pincode.length < 4) {
+                alert('Please enter a valid pincode');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`{{ url_for("emergency.search_resources") }}?pincode=${pincode}&blood_group=${bloodGroup}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal();
+                    displaySearchResults(result);
+                } else {
+                    alert('Error searching: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to search. Please try again.');
+            }
+        }
+
+        function displaySearchResults(data) {
+            document.getElementById('results-section').style.display = 'block';
+            
+            // Update notification status
+            const notificationStatus = document.getElementById('notification-status');
+            notificationStatus.innerHTML = `<i class="fas fa-search"></i> Found ${data.banks_count || 0} blood banks and ${data.donors_count || 0} donors`;
+            
+            // Display blood banks
+            const bloodBanksList = document.getElementById('blood-banks-list');
+            if (data.blood_banks && data.blood_banks.length > 0) {
+                bloodBanksList.innerHTML = data.blood_banks.map(bank => `
+                    <div class="resource-item">
+                        <strong>${bank.name}</strong>
+                        ${bank.distance_km ? `
+                        <div class="resource-info">
+                            <i class="fas fa-route"></i>
+                            <span style="color: #10b981; font-weight: bold;">${bank.distance_km} km away</span>
+                        </div>
+                        ` : ''}
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${bank.address}, ${bank.city} - ${bank.pincode}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${bank.phone}</span>
+                        </div>
+                        ${bank.email && bank.email !== 'N/A' ? `
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${bank.email}</span>
+                        </div>
+                        ` : ''}
+                        ${bank.available_units ? `
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #10b981; font-weight: bold;">${bank.available_units} units available</span>
+                        </div>
+                        ` : ''}
+                        ${bank.latitude && bank.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${bank.latitude}, ${bank.longitude}, '${bank.name.replace(/'/g, "\\'")}')"
+                                style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                bloodBanksList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No nearby blood banks found. Try expanding your search area or contact emergency services.</div>';
+            }
+            
+            // Display donors
+            const donorsList = document.getElementById('donors-list');
+            if (data.donors && data.donors.length > 0) {
+                donorsList.innerHTML = data.donors.map(donor => `
+                    <div class="resource-item">
+                        <strong>${donor.name}</strong>
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #fbbf24; font-weight: bold;">${donor.blood_group}</span>
+                        </div>
+                        ${donor.distance_km ? `
+                        <div class="resource-info">
+                            <i class="fas fa-route"></i>
+                            <span style="color: #10b981; font-weight: bold;">${donor.distance_km} km away</span>
+                        </div>
+                        ` : ''}
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${donor.phone}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${donor.address}, ${donor.city} - ${donor.pincode}</span>
+                        </div>
+                        ${donor.email && donor.email !== 'N/A' ? `
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${donor.email}</span>
+                        </div>
+                        ` : ''}
+                        ${donor.last_updated ? `
+                        <div class="resource-info">
+                            <i class="fas fa-clock"></i>
+                            <span>Last updated: ${donor.last_updated}</span>
+                        </div>
+                        ` : ''}
+                        ${donor.latitude && donor.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${donor.latitude}, ${donor.longitude}, '${donor.name.replace(/'/g, "\\'")}')"
+                                style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                donorsList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No donors found in immediate area. Please contact blood banks or emergency services.</div>';
+            }
+            
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bloodBankModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Legacy emergency form submission code commented out to prevent conflicts
+        // New implementation is in the DOMContentLoaded section above
+        /*
+        document.getElementById('emergency-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedUrgency) {
+                alert('Please select urgency level');
+                return;
+            }
+            
+            const formData = {
+                patient_name: document.getElementById('patient_name').value,
+                blood_group: document.getElementById('blood_group').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                units_needed: document.getElementById('units_needed').value,
+                hospital_name: document.getElementById('hospital_name').value,
+                hospital_address: document.getElementById('hospital_address').value,
+                pincode: document.getElementById('pincode').value,
+                urgency_level: selectedUrgency
+            };
+            
+            try {
+                const response = await fetch('{{ url_for("emergency.create_emergency_request") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResults(result);
+                } else {
+                    alert('Failed to submit request: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to submit request. Please try again.');
+            }
+        });
+
+        function showResults(data) {
+            document.getElementById('results-section').style.display = 'block';
+            
+            // Update notification status
+            const notificationStatus = document.getElementById('notification-status');
+            if (data.notifications_sent) {
+                notificationStatus.innerHTML = `
+                    <i class="fas fa-check-circle"></i> 
+                    ${data.notifications_sent.total || 0} notifications sent 
+                    (${data.notifications_sent.donors || 0} donors, ${data.notifications_sent.blood_banks || 0} banks)
+                `;
+            }
+            
+            // Display blood banks
+            const bloodBanksList = document.getElementById('blood-banks-list');
+            if (data.nearby_banks && data.nearby_banks.length > 0) {
+                bloodBanksList.innerHTML = data.nearby_banks.map(bank => `
+                    <div class="resource-item">
+                        <strong>${bank.name}</strong>
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${bank.address}, ${bank.city} - ${bank.pincode}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${bank.phone}</span>
+                        </div>
+                        ${bank.email && bank.email !== 'N/A' ? `
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${bank.email}</span>
+                        </div>
+                        ` : ''}
+                        ${bank.available_units ? `
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #10b981; font-weight: bold;">${bank.available_units} units available</span>
+                        </div>
+                        ` : ''}
+                        ${bank.latitude && bank.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${bank.latitude}, ${bank.longitude}, '${bank.name.replace(/'/g, "\\'")}')"
+                                style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                bloodBanksList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No nearby blood banks found. Contact emergency services.</div>';
+            }
+            
+            // Display donors
+            const donorsList = document.getElementById('donors-list');
+            if (data.nearby_donors && data.nearby_donors.length > 0) {
+                donorsList.innerHTML = data.nearby_donors.map(donor => `
+                    <div class="resource-item">
+                        <strong>${donor.name}</strong>
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #fbbf24; font-weight: bold;">${donor.blood_group}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${donor.phone}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${donor.address}, ${donor.city} - ${donor.pincode}</span>
+                        </div>
+                        ${donor.email && donor.email !== 'N/A' ? `
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${donor.email}</span>
+                        </div>
+                        ` : ''}
+                        ${donor.last_updated ? `
+                        <div class="resource-info">
+                            <i class="fas fa-clock"></i>
+                            <span>Last updated: ${donor.last_updated}</span>
+                        </div>
+                        ` : ''}
+                        ${donor.latitude && donor.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${donor.latitude}, ${donor.longitude}, '${donor.name.replace(/'/g, "\\'")}')"
+                                style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                donorsList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No donors found in immediate area. Expanding search...</div>';
+            }
+            
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        */
+
+        // Function to open location in Google Maps
+        function openLocationInMaps(latitude, longitude, name) {
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&destination_place_id=${encodeURIComponent(name)}`;
+            window.open(googleMapsUrl, '_blank');
+        }
+
+        // Auto-fill current location pincode (mock)
+        navigator.geolocation?.getCurrentPosition(function(position) {
+            // In real implementation, reverse geocode to get pincode
+            console.log('Location detected:', position.coords);
+        });
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, attaching emergency form event listener...');
+            
+            const emergencyForm = document.getElementById('emergencyForm');
+            if (!emergencyForm) {
+                console.error('Emergency form not found!');
+                return;
+            }
+            
+            console.log('Emergency form found, attaching event listener...');
+            
+            // Emergency Form Submission with Local Search
+            emergencyForm.addEventListener('submit', handleFormSubmission);
+            
+            // Also add button click listener as backup
+            const submitBtn = document.getElementById('emergencySubmitBtn');
+            if (submitBtn) {
+                console.log('Submit button found, attaching click listener...');
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Button clicked!');
+                    e.preventDefault();
+                    handleFormSubmission(e);
+                });
+            }
+            
+            async function handleFormSubmission(e) {
+                console.log('Form submitted!');
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('emergencySubmitBtn');
+                const submitContent = document.getElementById('submitBtnContent');
+                const submitLoading = document.getElementById('submitBtnLoading');
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                
+                console.log('Form elements found:', {
+                    submitBtn: !!submitBtn,
+                    submitContent: !!submitContent,
+                    submitLoading: !!submitLoading,
+                    loadingOverlay: !!loadingOverlay
+                });
+                
+                // Show loading state
+                if (submitBtn) submitBtn.disabled = true;
+                if (submitContent) submitContent.style.display = 'none';
+                if (submitLoading) submitLoading.style.display = 'inline-block';
+                if (loadingOverlay) loadingOverlay.style.display = 'flex';
+            loadingOverlay.style.display = 'flex';
+            
+            // Collect form data
+            const formData = {
+                patient_name: document.getElementById('patient_name').value,
+                blood_group: document.getElementById('blood_group').value,
+                hospital_name: document.getElementById('hospital_name').value,
+                hospital_address: document.getElementById('hospital_address').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                pincode: document.getElementById('pincode').value,
+                urgency_level: selectedUrgency || 'High',
+                units_needed: document.getElementById('units_needed').value || 1
+            };
+            
+            try {
+                const response = await fetch('{{ url_for("emergency.create_emergency_request") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                if (result.success) {
+                    // Show success and local results
+                    showLocalResults(result);
+                } else {
+                    throw new Error(result.error || 'Request failed');
+                }
+                
+            } catch (error) {
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                console.error('Emergency request failed:', error);
+                alert('Failed to create emergency request: ' + error.message);
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitContent.style.display = 'inline-block';
+                submitLoading.style.display = 'none';
+            }
+        } // End of handleFormSubmission function
+        
+        function showLocalResults(result) {
+            // Reset form
+            document.getElementById('emergencyForm').reset();
+            selectedUrgency = '';
+            document.querySelectorAll('.urgency-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Reset button
+            const submitBtn = document.getElementById('emergencySubmitBtn');
+            const submitContent = document.getElementById('submitBtnContent');
+            const submitLoading = document.getElementById('submitBtnLoading');
+            submitBtn.disabled = false;
+            submitContent.style.display = 'inline-block';
+            submitLoading.style.display = 'none';
+            
+            // Show results section
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.style.display = 'block';
+            
+            // Update notification status
+            const notificationStatus = document.getElementById('notification-status');
+            if (result.local_matches.banks_count > 0 || result.local_matches.donors_count > 0) {
+                notificationStatus.innerHTML = `
+                    <i class="fas fa-check-circle"></i> 
+                    Local emergency alert sent! Found ${result.local_matches.donors_count} donors and ${result.local_matches.banks_count} blood banks in your area.
+                `;
+            } else {
+                notificationStatus.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    No local matches found. Consider expanding search to nearby areas.
+                `;
+            }
+            
+            // Display local blood banks
+            const bloodBanksList = document.getElementById('blood-banks-list');
+            if (result.local_matches.banks && result.local_matches.banks.length > 0) {
+                bloodBanksList.innerHTML = result.local_matches.banks.map(bank => `
+                    <div class="resource-item">
+                        <strong>${bank.name}</strong>
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${bank.phone}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${bank.address}, ${bank.city} - ${bank.pincode}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${bank.email}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #10b981; font-weight: bold;">
+                                ${bank.available_blood_groups || 'Contact for availability'}
+                            </span>
+                        </div>
+                        ${bank.latitude && bank.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${bank.latitude}, ${bank.longitude}, '${bank.name.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                bloodBanksList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No blood banks found in your pincode.</div>';
+            }
+            
+            // Display local donors
+            const donorsList = document.getElementById('donors-list');
+            if (result.local_matches.donors && result.local_matches.donors.length > 0) {
+                donorsList.innerHTML = result.local_matches.donors.map(donor => `
+                    <div class="resource-item">
+                        <strong>${donor.name}</strong>
+                        <div class="resource-info">
+                            <i class="fas fa-tint"></i>
+                            <span style="color: #fbbf24; font-weight: bold;">${donor.blood_group}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-phone"></i>
+                            <span>${donor.phone}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${donor.address}, ${donor.city} - ${donor.pincode}</span>
+                        </div>
+                        <div class="resource-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>${donor.email}</span>
+                        </div>
+                        ${donor.latitude && donor.longitude ? `
+                        <button class="view-location-btn" onclick="openLocationInMaps(${donor.latitude}, ${donor.longitude}, '${donor.name.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>View Location</span>
+                        </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                donorsList.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle"></i><br>No donors found in your pincode with matching blood group.</div>';
+            }
+            
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Show success message
+            setTimeout(() => {
+                alert(`Emergency request created successfully!\n\nRequest ID: #${result.request_id}\nLocal matches found: ${result.local_matches.donors_count} donors, ${result.local_matches.banks_count} blood banks\n\n${result.message}`);
+            }, 500);
+        }
+        
+        }); // End of DOMContentLoaded event listener
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Donor Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blood_donor.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Blood Donor Management</h1>
+                <p>Add and manage blood donors in your network with precise location mapping</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alert" class="alert"></div>
+
+    <!-- Add Donor Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <i class="fas fa-user-plus"></i>
+            <div>
+                <h2>Add New Blood Donor</h2>
+                <p class="section-description">Register a new blood donor with complete contact and location information</p>
+            </div>
+        </div>
+        
+        <form id="donorForm">
+            <!-- Personal Information -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                    <input type="text" id="name" class="form-input" placeholder="Enter donor's full name" required minlength="2" maxlength="200">
+                    <div class="field-hint">Enter the complete name of the blood donor</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+1 234 567 8900" required pattern="[\+]?[0-9\s\-\(\)]{10,15}">
+                    <div class="field-hint">Include country code if international</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="donor@example.com">
+                    <div class="field-hint">Optional - for contact purposes</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-tint"></i> Blood Group *</label>
+                    <select id="blood_group" class="form-select" required>
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+ (A Positive)</option>
+                        <option value="A-">A- (A Negative)</option>
+                        <option value="B+">B+ (B Positive)</option>
+                        <option value="B-">B- (B Negative)</option>
+                        <option value="AB+">AB+ (AB Positive)</option>
+                        <option value="AB-">AB- (AB Negative)</option>
+                        <option value="O+">O+ (O Positive)</option>
+                        <option value="O-">O- (O Negative)</option>
+                    </select>
+                    <div class="field-hint">Select the donor's blood type</div>
+                </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label"><i class="fas fa-home"></i> Complete Address *</label>
+                    <textarea id="address" class="form-input" rows="2" placeholder="Enter complete street address, building number, area" required minlength="10" maxlength="500" style="resize: vertical;"></textarea>
+                    <div class="field-hint">Include house/building number, street name, and area details</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-city"></i> City/Town *</label>
+                    <input type="text" id="city" class="form-input" placeholder="Enter city or town name" required minlength="2" maxlength="100">
+                    <div class="field-hint">Name of the city or town</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-map-pin"></i> PIN Code/ZIP Code *</label>
+                    <input type="text" id="pincode" class="form-input" placeholder="Enter postal code" required pattern="[0-9]{5,6}" title="Please enter a valid postal code">
+                    <div class="field-hint">5-6 digit postal code</div>
+                </div>
+            </div>
+            
+            <!-- Location Selection Section -->
+            <div class="map-section">
+                <label class="form-label"><i class="fas fa-map-marked-alt"></i> Select Location on Map (Optional)</label>
+            
+                
+                <div class="button-group">
+                    <button type="button" id="getCurrentLocation" class="btn btn-secondary">
+                        <i class="fas fa-location-arrow"></i>
+                        <span>Use Current Location</span>
+                    </button>
+                    <button type="button" id="dropPin" class="btn btn-secondary">
+                        <i class="fas fa-map-pin"></i> Drop a Pin on Map
+                    </button>
+                </div>
+                
+                <div id="locationStatus" class="location-status"></div>
+                
+                <div class="map-container" id="map"></div>
+            </div>
+            
+            <input type="hidden" id="latitude">
+            <input type="hidden" id="longitude">
+            
+            <!-- Form Actions -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Donor
+                </button>
+                <button type="button" id="resetForm" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Donors List Section -->
+    <div class="donor-section">
+        <div class="section-header">
+            <i class="fas fa-list"></i>
+            <div style="flex: 1;">
+                <h2>Registered Donors</h2>
+                <p style="color: #94a3b8; margin: 0;">Browse and filter existing blood donors</p>
+            </div>
+        </div>
+        
+        <!-- Search Filters -->
+        <div class="filter-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: #e2e8f0; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-filter"></i> Filter Donors
+                </h3>
+                <div id="filterResultsCount" style="color: #94a3b8; font-size: 0.95rem; display: none;">
+                    <i class="fas fa-users"></i> <span id="resultsCount">0</span> donors found
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Filter by Blood Group</label>
+                    <select id="filterBloodGroup" class="form-select">
+                        <option value="">All Blood Groups</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filter by City</label>
+                    <input type="text" id="filterCity" class="form-input" placeholder="Enter city name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filter by Pincode</label>
+                    <input type="text" id="filterPincode" class="form-input" placeholder="Enter pincode">
+                </div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                <button id="clearFilters" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+        
+        <div id="donorsList" class="donors-list">
+            <div style="text-align: center; color: #94a3b8; padding: 2rem;">
+                <p>No donors found.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emergency Mode Section -->
+    <div id="emergencySection" class="emergency-section" style="display: none;">
+        <div class="section-header emergency-header">
+            <i class="fas fa-ambulance"></i>
+            <div style="flex: 1;">
+                <h2>Emergency Mode - Nearby Resources</h2>
+                <p style="color: #ef4444; margin: 0; font-weight: 600;">Finding blood donors and banks near your location...</p>
+            </div>
+            <button id="exitEmergency" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Exit Emergency
+            </button>
+        </div>
+        
+        <div class="emergency-controls">
+            <div class="form-group">
+                <label class="form-label">Required Blood Group</label>
+                <select id="emergencyBloodGroup" class="form-select" required>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div class="form-group" style="display: flex; align-items: end;">
+                <button id="findEmergencyResources" class="btn btn-emergency" style="width: 100%; margin-bottom: 0;">
+                    <i class="fas fa-search"></i> Find Emergency Resources
+                </button>
+            </div>
+        </div>
+        
+        <div class="emergency-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div class="emergency-card">
+                <h3><i class="fas fa-users" style="color: #ef4444;"></i> Nearby Donors</h3>
+                <div id="emergencyDonors" class="emergency-list">
+                    <p style="color: #94a3b8;">Click "Find Emergency Resources" to search</p>
+                </div>
+            </div>
+            
+            <div class="emergency-card">
+                <h3><i class="fas fa-hospital" style="color: #ef4444;"></i> Nearby Blood Banks</h3>
+                <div id="emergencyBloodBanks" class="emergency-list">
+                    <p style="color: #94a3b8;">Click "Find Emergency Resources" to search</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/blood_donor.js') }}"></script>
+{% endblock %}
+

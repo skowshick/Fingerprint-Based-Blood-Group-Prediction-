@@ -1,0 +1,642 @@
+/* 
+ * Enhanced Form Styling CSS
+ * This file provides comprehensive form styling to ensure all forms 
+ * across the application have a consistent, professional appearance
+ */
+
+/* Form Container Enhancement */
+.form-section {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(15px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transition: left 0.6s ease;
+}
+
+.form-section:hover::before {
+    left: 100%;
+}
+
+.form-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Form Header Styling */
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(239, 68, 68, 0.3);
+    position: relative;
+}
+
+.form-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(135deg, #e63946, #dc2f02);
+    border-radius: 1px;
+}
+
+.form-header .form-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #e63946, #dc2f02);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+}
+
+.form-header h1,
+.form-header h2,
+.form-header h3 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #ffffff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-header p {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Enhanced Input Styling */
+.form-input-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-input-container .form-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.form-input-container .form-input {
+    padding-left: 3rem;
+}
+
+.form-input-container:focus-within .form-icon {
+    color: #e63946;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Floating Label Effect */
+.form-floating {
+    position: relative;
+}
+
+.form-floating .form-input {
+    padding: 1.5rem 1.2rem 0.5rem;
+}
+
+.form-floating .form-label {
+    position: absolute;
+    top: 1rem;
+    left: 1.2rem;
+    color: rgba(148, 163, 184, 0.7);
+    font-size: 1rem;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin: 0;
+}
+
+.form-floating .form-input:focus + .form-label,
+.form-floating .form-input:not(:placeholder-shown) + .form-label {
+    top: 0.5rem;
+    font-size: 0.8rem;
+    color: #e63946;
+    font-weight: 600;
+}
+
+/* Blood Type Selection */
+.blood-type-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.blood-type-option {
+    position: relative;
+}
+
+.blood-type-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.blood-type-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: none;
+    letter-spacing: normal;
+    margin: 0;
+}
+
+.blood-type-option input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, #e63946, #dc2f02);
+    border-color: #e63946;
+    color: white;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    transform: scale(1.05);
+}
+
+.blood-type-option:hover label {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* File Upload Styling */
+.file-upload-container {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-upload-input {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    padding: 2rem;
+}
+
+.file-upload-label:hover {
+    border-color: #e63946;
+    background: rgba(239, 68, 68, 0.05);
+    transform: translateY(-2px);
+}
+
+.file-upload-icon {
+    font-size: 3rem;
+    color: #e63946;
+    margin-bottom: 1rem;
+}
+
+.file-upload-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.file-upload-subtext {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Checkbox and Radio Custom Styling */
+.form-checkbox-container,
+.form-radio-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.form-checkbox,
+.form-radio {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.form-checkbox + label,
+.form-radio + label {
+    position: relative;
+    cursor: pointer;
+    color: #e2e8f0;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    margin: 0;
+}
+
+.form-checkbox + label::before,
+.form-radio + label::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(15, 23, 42, 0.6);
+    transition: all 0.3s ease;
+}
+
+.form-checkbox + label::before {
+    border-radius: 4px;
+}
+
+.form-radio + label::before {
+    border-radius: 50%;
+}
+
+.form-checkbox:checked + label::before,
+.form-radio:checked + label::before {
+    background: linear-gradient(135deg, #e63946, #dc2f02);
+    border-color: #e63946;
+}
+
+.form-checkbox:checked + label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    left: -1.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 0.8rem;
+}
+
+.form-radio:checked + label::after {
+    content: '';
+    position: absolute;
+    left: -1.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+}
+
+.form-actions.left {
+    justify-content: flex-start;
+}
+
+.form-actions.right {
+    justify-content: flex-end;
+}
+
+.form-actions.space-between {
+    justify-content: space-between;
+}
+
+/* Loading State for Forms */
+.form-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.form-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+    z-index: 10;
+}
+
+/* Success/Error States */
+.form-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.form-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Progress Indicator */
+.form-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active {
+    background: linear-gradient(135deg, #e63946, #dc2f02);
+    color: white;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.progress-step.completed {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+}
+
+.progress-step.completed::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.progress-connector {
+    width: 50px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.progress-connector.completed {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+/* Responsive Form Design */
+@media (max-width: 1200px) {
+    .form-grid.three-columns {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-header h1,
+    .form-header h2,
+    .form-header h3 {
+        font-size: 1.8rem;
+    }
+    
+    .form-header .form-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .blood-type-selector {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+    
+    .file-upload-label {
+        min-height: 150px;
+        padding: 1.5rem;
+    }
+    
+    .file-upload-icon {
+        font-size: 2rem;
+    }
+    
+    .progress-connector {
+        width: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-grid.two-columns,
+    .form-grid.three-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .blood-type-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-header h1,
+    .form-header h2,
+    .form-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .form-input-container .form-input {
+        padding-left: 1.2rem;
+    }
+    
+    .form-input-container .form-icon {
+        display: none;
+    }
+}
+
+/* Animation for form appearance */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-group {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+.form-group:nth-child(6) { animation-delay: 0.6s; }
+
+/* ==========================================================================
+   DROPDOWN / SELECT STYLING FIX
+   ========================================================================== */
+
+/* Fix for dropdown visibility issues - ensures options are visible */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+    cursor: pointer;
+}
+
+/* Ensure dropdown options are visible with proper contrast */
+.form-select option {
+    background: white !important;
+    color: #1f2937 !important;
+    padding: 8px 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: none;
+}
+
+/* Hover effect for dropdown options */
+.form-select option:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+/* Styling for disabled options */
+.form-select option:disabled {
+    background: #f9fafb !important;
+    color: #9ca3af !important;
+    cursor: not-allowed;
+}
+
+/* Special styling for placeholder/default option */
+.form-select option[value=""],
+.form-select option:first-child {
+    color: #6b7280 !important;
+    font-style: italic;
+}
+
+/* Focus state for better accessibility */
+.form-select:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    border-color: #e63946;
+    outline: none;
+}
+
+/* Ensure select works properly on mobile devices */
+@media (max-width: 768px) {
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        background-size: 1.2rem;
+        background-position: right 0.8rem center;
+    }
+    
+    .form-select option {
+        padding: 12px 16px;
+        font-size: 16px;
+    }
+}
+
+/* Dark mode compatibility for dropdowns */
+@media (prefers-color-scheme: dark) {
+    .form-select option {
+        background: white !important;
+        color: #1f2937 !important;
+    }
+}
+
+/* Enhanced dropdown styling for better UX */
+.form-select:invalid {
+    border-color: #fbbf24;
+}
+
+.form-select:valid {
+    border-color: #10b981;
+}

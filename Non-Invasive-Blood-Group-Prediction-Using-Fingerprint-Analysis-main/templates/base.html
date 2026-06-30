@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Emergency Blood Prediction System{% endblock %}</title>
+    
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <!-- Enhanced Form Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Additional head content -->
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                BloodPredict Pro
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('emergency.emergency') }}" class="nav-link {% if request.endpoint == 'emergency.emergency' %}active{% endif %}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Emergency
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('blood_donor.manage_donors') }}" class="nav-link {% if request.endpoint == 'blood_donor.manage_donors' %}active{% endif %}">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    Blood Donors
+                </a>
+                <a href="{{ url_for('blood_bank.manage_blood_banks') }}" class="nav-link {% if request.endpoint == 'blood_bank.manage_blood_banks' %}active{% endif %}">
+                    <i class="fas fa-hospital"></i>
+                    Blood Banks
+                </a>
+                <a href="{{ url_for('main.history') }}" class="nav-link {% if request.endpoint == 'main.history' %}active{% endif %}">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin.admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-cogs"></i>
+                    Admin
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="user-profile">
+                {% if current_user.is_authenticated %}
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="nav-link">{{ current_user.username }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Register
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="message {{ 'error' if category == 'error' else 'success' }} show">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Messages Container (Global) -->
+    <div id="message" class="message"></div>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer" style="background: rgba(15, 23, 42, 0.8); padding: 2rem; text-align: center; margin-top: 3rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <p>&copy; 2026 Emergency Blood Prediction System. Advanced AI-powered healthcare solution.</p>
+            <p style="color: var(--text-light); margin-top: 0.5rem;">
+                <i class="fas fa-shield-alt"></i> Secure • 
+                <i class="fas fa-brain"></i> AI-Powered • 
+                <i class="fas fa-heart"></i> Life-Saving
+            </p>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Core JavaScript -->
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-enhancements.js') }}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Additional body content -->
+    {% block extra_body %}{% endblock %}
+</body>
+</html>

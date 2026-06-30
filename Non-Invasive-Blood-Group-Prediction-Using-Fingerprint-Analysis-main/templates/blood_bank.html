@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Bank Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blood_bank.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-icon" style="background: var(--gradient-blue);">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Blood Bank Management</h1>
+                <p>Manage blood banks, inventory levels, and emergency services network</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <div id="dashboardStats" class="stats-grid" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Total Blood Banks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Total Blood Units</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Critical Stock Types</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Active Blood Banks</div>
+        </div>
+    </div>
+
+    <!-- Add New Blood Bank Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <i class="fas fa-plus-circle"></i>
+            <div>
+                <h2>Add New Blood Bank</h2>
+                <p class="section-description">Register a new blood bank facility with location and contact details</p>
+            </div>
+        </div>
+        
+        <form id="bloodBankForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-hospital"></i> Bank Name *</label>
+                    <input type="text" id="name" class="form-input" placeholder="Enter blood bank name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Contact Number *</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+1 234 567 8900" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="contact@bloodbank.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-clock"></i> Operating Hours</label>
+                    <input type="text" id="operatingHours" class="form-input" placeholder="24/7 or specific hours">
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label"><i class="fas fa-map-marker-alt"></i> Complete Address *</label>
+                    <textarea id="address" class="form-textarea" rows="3" placeholder="Include building number, street, area, and landmarks" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-city"></i> City *</label>
+                    <input type="text" id="city" class="form-input" placeholder="Enter city name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-map-pin"></i> Pincode *</label>
+                    <input type="text" id="pincode" class="form-input" placeholder="Enter postal code" required>
+                </div>
+            </div>
+
+            <!-- Blood Inventory Section -->
+            <div class="section-header">
+                <i class="fas fa-vials"></i>
+                <div>
+                    <h3>Blood Inventory</h3>
+                    <p class="section-description">Set initial blood stock levels by blood type</p>
+                </div>
+            </div>
+
+            <div class="blood-type-grid">
+                <div class="form-group">
+                    <label class="form-label">A+ Units</label>
+                    <input type="number" id="units_A_pos" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">A- Units</label>
+                    <input type="number" id="units_A_neg" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">B+ Units</label>
+                    <input type="number" id="units_B_pos" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">B- Units</label>
+                    <input type="number" id="units_B_neg" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">AB+ Units</label>
+                    <input type="number" id="units_AB_pos" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">AB- Units</label>
+                    <input type="number" id="units_AB_neg" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">O+ Units</label>
+                    <input type="number" id="units_O_pos" class="form-input" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">O- Units</label>
+                    <input type="number" id="units_O_neg" class="form-input" placeholder="0" min="0">
+                </div>
+            </div>
+            
+            <!-- Location Selection -->
+            <div class="map-section">
+                <label class="form-label"><i class="fas fa-map-marked-alt"></i> Select Bank Location (Optional)</label>
+                
+                <div class="button-group">
+                    <button type="button" id="getCurrentLocation" class="btn btn-secondary">
+                        <i class="fas fa-location-arrow"></i>
+                        <span>Use Current Location</span>
+                    </button>
+                    <button type="button" id="dropPin" class="btn btn-secondary">
+                        <i class="fas fa-map-pin"></i> Drop a Pin on Map
+                    </button>
+                </div>
+                
+                <div class="map-container" id="map"></div>
+            </div>
+            
+            <input type="hidden" id="latitude">
+            <input type="hidden" id="longitude">
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Blood Bank
+                </button>
+                <button type="button" id="resetForm" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="section-card">
+        <div class="section-header">
+            <i class="fas fa-list"></i>
+            <div style="flex: 1;">
+                <h2>Registered Blood Banks</h2>
+                <p class="section-description">Manage existing blood bank facilities and their inventory</p>
+            </div>
+            <button id="refreshBanks" class="btn btn-secondary">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+        
+        <div class="filter-section">
+            <h3 class="filter-header">
+                <i class="fas fa-filter"></i> Filter Blood Banks
+            </h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Filter by City</label>
+                    <input type="text" id="filterCity" class="form-input" placeholder="Enter city name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filter by Pincode</label>
+                    <input type="text" id="filterPincode" class="form-input" placeholder="Enter pincode">
+                </div>
+            </div>
+        </div>
+        
+        <div id="bloodBanksList" class="blood-banks-list">
+            <div style="text-align: center; color: #94a3b8; padding: 2rem;">
+                <p>No blood banks found.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/blood_bank.js') }}"></script>
+{% endblock %}

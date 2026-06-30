@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Emergency Blood Prediction System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1 class="hero-title">Emergency Blood Prediction</h1>
+        <p class="hero-subtitle">Advanced AI-powered blood group prediction and emergency donor matching system</p>
+    </div>
+
+    <!-- Emergency Alert -->
+    <div class="emergency-alert">
+        <h3><i class="fas fa-ambulance"></i> Emergency Mode Available</h3>
+        <p>Need blood urgently? Access our emergency donor network and nearby blood banks instantly.</p>
+        <a href="{{ url_for('emergency.emergency') }}" class="emergency-btn">
+            <i class="fas fa-phone"></i>
+            Activate Emergency Mode
+        </a>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="features-grid">
+        <div class="feature-card" onclick="scrollToSearch()">
+            <div class="feature-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="feature-title">Donor Search</h3>
+            <p class="feature-description">Find blood donors by blood group and pincode. Search our comprehensive database of registered donors.</p>
+        </div>
+
+        <div class="feature-card" onclick="scrollToUpload()">
+            <div class="feature-icon">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <h3 class="feature-title">Blood Group Prediction</h3>
+            <p class="feature-description">Upload 1-10 fingerprints to predict blood group using advanced AI with confidence scoring.</p>
+        </div>
+        <div class="feature-card" onclick="window.location.href='{{ url_for('blood_donor.manage_donors') if current_user.is_authenticated else url_for('auth.login') + '?next=' + url_for('blood_donor.manage_donors') }}'">
+            <div class="feature-icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <h3 class="feature-title">Blood Donor Management</h3>
+            <p class="feature-description">Add and manage blood donors in your network with complete contact information.</p>
+        </div>
+
+        <div class="feature-card" onclick="window.location.href='{{ url_for('blood_bank.manage_blood_banks') if current_user.is_authenticated else url_for('auth.login') + '?next=' + url_for('blood_bank.manage_blood_banks') }}'">
+            <div class="feature-icon">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <h3 class="feature-title">Blood Bank Management</h3>
+            <p class="feature-description">Manage blood bank information, inventory, and contact details.</p>
+        </div>
+
+        <div class="feature-card" onclick="window.location.href='{{ url_for('main.analytics') if current_user.is_authenticated else url_for('auth.login') + '?next=' + url_for('main.analytics') }}'">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">Analytics & Reports</h3>
+            <p class="feature-description">Track your prediction history, accuracy metrics, and usage patterns.</p>
+        </div>
+    </div>
+
+    <!-- Donor Search Section -->
+    <div class="search-section" id="search-section">
+        <h2 class="section-title">
+            <i class="fas fa-users"></i>
+            Find Blood Donors
+        </h2>
+        <form class="search-form" id="donor-search-form">
+            <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <select class="form-select" id="blood-group-search" required>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pincode</label>
+                <input type="text" class="form-input" id="pincode-search" placeholder="Enter pincode" required>
+            </div>
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+                Search Donors
+            </button>
+        </form>
+        
+        <div id="search-results" style="display: none; margin-top: 2rem;">
+            <h3>Available Donors</h3>
+            <div id="donors-list"></div>
+        </div>
+    </div>
+
+    <!-- Fingerprint Upload Section -->
+    <div class="upload-section" id="upload-section">
+        <h2 class="section-title">
+            <i class="fas fa-upload"></i>
+            Blood Group Prediction
+        </h2>
+        
+        <div class="upload-area">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="upload-text">Upload Fingerprint Images</div>
+            <div class="upload-subtext">Select 1-10 fingerprint images for blood group prediction</div>
+            <div class="upload-subtext">Supported formats: BMP, JPG, JPEG, PNG | Max 10 files</div>
+            
+            <input type="file" id="fingerprint-files" class="file-input" multiple accept=".bmp,.jpg,.jpeg,.png">
+            <button type="button" class="upload-btn" onclick="document.getElementById('fingerprint-files').click()">
+                <i class="fas fa-folder-open"></i>
+                Select Images
+            </button>
+            <button type="button" class="predict-btn" id="predict-btn" onclick="predictBloodGroup()">
+                <i class="fas fa-brain"></i>
+                Predict Blood Group
+            </button>
+        </div>
+
+        <div class="uploaded-files" id="uploaded-files">
+            <h3>Selected Files:</h3>
+            <div class="file-list" id="file-list"></div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="results-section">
+        <h2 class="section-title">Prediction Results</h2>
+        <div class="result-card" id="result-card">
+            <div class="blood-group-result" id="blood-group-result">A+</div>
+            <div class="confidence-score" id="confidence-score">85.2% Confidence</div>
+        </div>
+        <div id="detailed-results"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/donor-search.js') }}"></script>
+{% endblock %}

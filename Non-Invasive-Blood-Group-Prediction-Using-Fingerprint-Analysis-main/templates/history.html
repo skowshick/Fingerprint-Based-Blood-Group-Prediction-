@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My History - Blood Prediction System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e63946;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .history-filters {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .filter-input, .filter-select {
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #e63946;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #dc2626, #e63946);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .history-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .history-item {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .prediction-result {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .blood-group-badge {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #dc2626, #e63946);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .confidence-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .confidence-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .confidence-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .timestamp {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .prediction-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .fingerprint-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #3b82f6;
+        }
+
+        .accuracy-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .accuracy-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .accuracy-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .high-confidence .accuracy-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .medium-confidence .accuracy-fill {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .low-confidence .accuracy-fill {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .history-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .prediction-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                BloodPredict Pro
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="/emergency" class="nav-link">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Emergency
+                </a>
+                <a href="/history" class="nav-link active">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">My Prediction History</h1>
+            <p class="page-subtitle">Track your blood group prediction results and accuracy over time</p>
+        </div>
+
+        <!-- Statistics Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-number">{{ predictions|length }}</div>
+                <div class="stat-label">Total Predictions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set avg_confidence = predictions|sum(attribute='confidence_score')/predictions|length if predictions else 0 %}
+                    {{ "%.1f"|format(avg_confidence) }}%
+                </div>
+                <div class="stat-label">Average Confidence</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set avg_fingerprints = predictions|sum(attribute='num_fingerprints')/predictions|length if predictions else 0 %}
+                    {{ "%.1f"|format(avg_fingerprints) }}
+                </div>
+                <div class="stat-label">Avg Fingerprints Used</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set high_confidence = predictions|selectattr('confidence_score', '>', 80)|list|length %}
+                    {{ high_confidence }}
+                </div>
+                <div class="stat-label">High Confidence Results</div>
+            </div>
+        </div>
+
+        <div class="history-filters">
+            <div class="filter-group">
+                <label class="filter-label">Blood Group</label>
+                <select class="filter-select" id="bloodGroupFilter">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Date From</label>
+                <input type="date" class="filter-input" id="dateFromFilter">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Date To</label>
+                <input type="date" class="filter-input" id="dateToFilter">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Confidence</label>
+                <select class="filter-select" id="confidenceFilter">
+                    <option value="">All Confidence Levels</option>
+                    <option value="high">High (80%+)</option>
+                    <option value="medium">Medium (60-80%)</option>
+                    <option value="low">Low (<60%)</option>
+                </select>
+            </div>
+            
+            <button class="filter-btn" onclick="applyFilters()">
+                <i class="fas fa-filter"></i>
+                Apply Filters
+            </button>
+        </div>
+
+        {% if predictions %}
+        <div class="history-grid" id="historyGrid">
+            {% for prediction in predictions %}
+            <div class="history-item {% if prediction.confidence_score > 80 %}high-confidence{% elif prediction.confidence_score > 60 %}medium-confidence{% else %}low-confidence{% endif %}">
+                <div class="history-header">
+                    <div class="prediction-result">
+                        <div class="blood-group-badge">{{ prediction.predicted_blood_group }}</div>
+                        <div class="confidence-info">
+                            <div class="confidence-score">{{ "%.1f"|format(prediction.confidence_score) }}%</div>
+                            <div class="confidence-label">Confidence</div>
+                        </div>
+                    </div>
+                    <div class="timestamp">
+                        <i class="fas fa-clock"></i>
+                        {{ prediction.timestamp.strftime('%B %d, %Y at %H:%M') }}
+                    </div>
+                </div>
+                
+                <div class="prediction-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Fingerprints Used</div>
+                        <div class="detail-value">
+                            <span class="fingerprint-count">
+                                <i class="fas fa-fingerprint"></i>
+                                {{ prediction.num_fingerprints }} fingerprints
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Accuracy Level</div>
+                        <div class="detail-value">
+                            <div class="accuracy-indicator">
+                                <div class="accuracy-bar">
+                                    <div class="accuracy-fill" style="width: {{ prediction.confidence_score }}%"></div>
+                                </div>
+                                {% if prediction.confidence_score > 80 %}
+                                <span style="color: #10b981;">High</span>
+                                {% elif prediction.confidence_score > 60 %}
+                                <span style="color: #f59e0b;">Medium</span>
+                                {% else %}
+                                <span style="color: #ef4444;">Low</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Session ID</div>
+                        <div class="detail-value">{{ prediction.session_id[:8] }}...</div>
+                    </div>
+                </div>
+
+                <div class="history-actions">
+                    <a href="#" class="action-btn" onclick="viewDetails({{ prediction.id }})">
+                        <i class="fas fa-eye"></i>
+                        View Details
+                    </a>
+                    <a href="#" class="action-btn" onclick="downloadReport({{ prediction.id }})">
+                        <i class="fas fa-download"></i>
+                        Download Report
+                    </a>
+                    <a href="#" class="action-btn" onclick="shareResult({{ prediction.id }})">
+                        <i class="fas fa-share"></i>
+                        Share
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <h3>No Predictions Yet</h3>
+            <p>Start by uploading your fingerprints on the dashboard to see your prediction history here.</p>
+            <a href="/dashboard" class="action-btn" style="margin-top: 2rem; display: inline-flex;">
+                <i class="fas fa-upload"></i>
+                Upload Fingerprints
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function applyFilters() {
+            const bloodGroup = document.getElementById('bloodGroupFilter').value;
+            const dateFrom = document.getElementById('dateFromFilter').value;
+            const dateTo = document.getElementById('dateToFilter').value;
+            const confidence = document.getElementById('confidenceFilter').value;
+            
+            // In real implementation, this would filter the results
+            console.log('Applying filters:', { bloodGroup, dateFrom, dateTo, confidence });
+            alert('Filters applied! (In real implementation, results would be filtered)');
+        }
+
+        function viewDetails(predictionId) {
+            // In real implementation, this would show a modal with detailed results
+            alert(`Viewing details for prediction ${predictionId}`);
+        }
+
+        function downloadReport(predictionId) {
+            // In real implementation, this would generate and download a PDF report
+            alert(`Downloading report for prediction ${predictionId}`);
+        }
+
+        function shareResult(predictionId) {
+            // In real implementation, this would open share options
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Blood Group Prediction Result',
+                    text: 'Check out my blood group prediction result from BloodPredict Pro',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support native sharing
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            }
+        }
+
+        // Set default date filter to last 30 days
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('dateFromFilter').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('dateToFilter').value = today.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports - Blood Group Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .analytics-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Header */
+        .hero-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-text h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+        }
+
+        /* Real-time Indicator */
+        .realtime-badge {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: white;
+            z-index: 2;
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Time Filter */
+        .time-filter-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .time-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            padding: 0.85rem 1.75rem;
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-btn:hover {
+            border-color: rgba(99, 102, 241, 0.6);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .time-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.6s ease-out both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.3s; }
+        .stat-card:nth-child(2) { animation-delay: 0.4s; }
+        .stat-card:nth-child(3) { animation-delay: 0.5s; }
+        .stat-card:nth-child(4) { animation-delay: 0.6s; }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            transition: transform 0.6s;
+        }
+
+        .stat-card:hover::before {
+            transform: translate(-25%, -25%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .stat-icon.pink {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-change.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out 0.7s both;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .section-title h2 {
+            color: #f1f5f9;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .section-title p {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header h3 {
+            color: #e2e8f0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Predictions Section */
+        .predictions-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out 0.8s both;
+        }
+
+        .section-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .refresh-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .predictions-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .prediction-card:hover {
+            transform: translateX(8px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .prediction-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .blood-badge {
+            padding: 0.75rem 1.5rem;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: white;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+        }
+
+        .prediction-time {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .prediction-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .prediction-user {
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .confidence-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .confidence-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .confidence-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            border-radius: 10px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confidence-bar-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                left: 100%;
+            }
+        }
+
+        /* Reports Section */
+        .reports-section {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out 0.9s both;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .download-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .download-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .download-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .download-title {
+            color: #f1f5f9;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .download-desc {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Performance Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .performance-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .performance-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .performance-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+        }
+
+        .performance-label {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            z-index: 9999;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .notification.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .realtime-badge {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 1rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Emergency Stats Section */
+        .emergency-stats-section {
+            margin: 3rem 0;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .analytics-container {
+                padding: 1rem;
+            }
+
+            .hero-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <!-- Hero Header -->
+        <div class="hero-header">
+            <div class="realtime-badge">
+                <span class="pulse-dot"></span>
+                <span>Live Data</span>
+            </div>
+            <div class="hero-content">
+                <div class="hero-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="hero-text">
+                    <h1>Analytics & Reports</h1>
+                    <p>Real-time insights into blood group predictions and system performance</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Filter -->
+        <div class="time-filter-section">
+            <div class="time-filters">
+                <button class="time-btn active" onclick="setTimeFilter(this, '7d')">
+                    <i class="fas fa-calendar-week"></i> Last 7 Days
+                </button>
+                <button class="time-btn" onclick="setTimeFilter(this, '30d')">
+                    <i class="fas fa-calendar-day"></i> Last 30 Days
+                </button>
+                <button class="time-btn" onclick="setTimeFilter(this, '3m')">
+                    <i class="fas fa-calendar"></i> Last 3 Months
+                </button>
+                <button class="time-btn" onclick="setTimeFilter(this, '6m')">
+                    <i class="fas fa-calendar-alt"></i> Last 6 Months
+                </button>
+                <button class="time-btn" onclick="setTimeFilter(this, '1y')">
+                    <i class="fas fa-calendar-check"></i> Last Year
+                </button>
+                <button class="time-btn" onclick="setTimeFilter(this, 'all')">
+                    <i class="fas fa-infinity"></i> All Time
+                </button>
+            </div>
+        </div>
+
+        <!-- Real-time Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <div class="stat-number" id="totalPredictions">0</div>
+                <div class="stat-label">Total Predictions</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="predictionsChange">+15.3%</span> from last month
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="stat-number" id="averageAccuracy">0%</div>
+                <div class="stat-label">Average Accuracy</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="accuracyChange">+2.1%</span> improvement
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" id="totalDonors">0</div>
+                <div class="stat-label">Registered Donors</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="donorsChange">+23</span> new donors
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pink">
+                    <i class="fas fa-heart-pulse"></i>
+                </div>
+                <div class="stat-number" id="successfulMatches">0</div>
+                <div class="stat-label">Successful Matches</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="matchesChange">+8.4%</span> this week
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="section-title">
+                    <h2>Prediction Analytics</h2>
+                    <p>Visual insights with real-time data updates</p>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <!-- Blood Type Distribution -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <i class="fas fa-pie-chart" style="color: #3b82f6; font-size: 1.5rem;"></i>
+                        <h3>Blood Type Distribution</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="bloodTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Accuracy Trend -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <i class="fas fa-chart-line" style="color: #10b981; font-size: 1.5rem;"></i>
+                        <h3>Weekly Accuracy Trend</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="accuracyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prediction Volume -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <i class="fas fa-chart-area" style="color: #8b5cf6; font-size: 1.5rem;"></i>
+                    <h3>Monthly Prediction Volume</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Match Statistics Section -->
+        <div class="emergency-stats-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="section-title">
+                    <h2>Emergency Match Statistics</h2>
+                    <p>Real-time tracking of emergency blood requests and successful matches</p>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="stat-number" id="totalEmergencyRequests">0</div>
+                    <div class="stat-label">Total Emergency Requests</div>
+                    <div class="stat-change">
+                        <span id="recentEmergencyRequests">0</span> in the last 7 days
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="emergencyMatchesFound">0</div>
+                    <div class="stat-label">Successful Matches Found</div>
+                    <div class="stat-change positive">
+                        <span id="matchSuccessRate">0%</span> success rate
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="stat-number" id="totalDonorsMatched">0</div>
+                    <div class="stat-label">Total Donors Matched</div>
+                    <div class="stat-change">
+                        Avg <span id="avgDonorsPerRequest">0</span> per request
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon pink">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="stat-number" id="totalBanksMatched">0</div>
+                    <div class="stat-label">Total Blood Banks Matched</div>
+                    <div class="stat-change">
+                        Avg <span id="avgBanksPerRequest">0</span> per request
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <!-- Urgency Level Breakdown -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 1.5rem;"></i>
+                        <h3>Emergency Urgency Levels</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="urgencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Blood Group Requests -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <i class="fas fa-tint" style="color: #ef4444; font-size: 1.5rem;"></i>
+                        <h3>Blood Group Demand</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="bloodGroupDemandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions -->
+        <div class="predictions-section">
+            <div class="section-header-actions">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="section-title">
+                        <h2>Recent Predictions</h2>
+                        <p>Latest blood group predictions with confidence scores</p>
+                    </div>
+                </div>
+                <button class="refresh-btn" onclick="loadRecentPredictions()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+
+            <div id="predictionsList" class="predictions-list">
+                <!-- Predictions will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div class="reports-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-file-download"></i>
+                </div>
+                <div class="section-title">
+                    <h2>Generate Reports</h2>
+                    <p>Download comprehensive reports and analytics data</p>
+                </div>
+            </div>
+
+            <div class="download-grid">
+                <div class="download-card" onclick="generateReport('Predictions', 'PDF')">
+                    <div class="download-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="download-title">Predictions Report</div>
+                    <div class="download-desc">Detailed PDF report of all predictions</div>
+                </div>
+
+                <div class="download-card" onclick="generateReport('Accuracy', 'Excel')">
+                    <div class="download-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <div class="download-title">Accuracy Analysis</div>
+                    <div class="download-desc">Excel spreadsheet with metrics</div>
+                </div>
+
+                <div class="download-card" onclick="generateReport('Donors', 'CSV')">
+                    <div class="download-icon">
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+                    <div class="download-title">Donors Database</div>
+                    <div class="download-desc">CSV export of donor information</div>
+                </div>
+
+                <div class="download-card" onclick="generateReport('System', 'PDF')">
+                    <div class="download-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="download-title">System Performance</div>
+                    <div class="download-desc">Comprehensive analysis report</div>
+                </div>
+            </div>
+
+            <!-- System Performance -->
+            <div class="section-header" style="margin-top: 2rem;">
+                <div class="section-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="section-title">
+                    <h2>System Performance Metrics</h2>
+                    <p>Real-time system health indicators</p>
+                </div>
+            </div>
+
+            <div class="performance-grid">
+                <div class="performance-card">
+                    <div class="performance-value" id="processingTime">0s</div>
+                    <div class="performance-label">Avg Processing Time</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-down"></i> 0.8s faster
+                    </div>
+                </div>
+
+                <div class="performance-card">
+                    <div class="performance-value" id="systemUptime">0%</div>
+                    <div class="performance-label">System Uptime</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +0.3% improvement
+                    </div>
+                </div>
+
+                <div class="performance-card">
+                    <div class="performance-value" id="apiRequests">0</div>
+                    <div class="performance-label">API Requests/Min</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +12% increase
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // Global variables
+        let bloodTypeChart, accuracyChart, volumeChart;
+        let currentTimeFilter = '7d';
+        let updateInterval;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadRealTimeData();
+            loadEmergencyStats();
+            loadRecentPredictions();
+            startRealtimeUpdates();
+        });
+
+        // Load real-time data from database
+        function loadRealTimeData() {
+            // Load stats
+            fetch('/api/analytics/stats')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const data = result.data;
+                        
+                        // Animate stats
+                        animateValue('totalPredictions', 0, data.totalPredictions, 2000);
+                        animateValue('totalDonors', 0, data.totalDonors, 2000);
+                        animateValue('successfulMatches', 0, data.successfulMatches, 2000);
+                        
+                        setTimeout(() => {
+                            document.getElementById('averageAccuracy').textContent = data.averageAccuracy + '%';
+                            document.getElementById('processingTime').textContent = data.processingTime + 's';
+                            document.getElementById('systemUptime').textContent = data.systemUptime + '%';
+                            document.getElementById('apiRequests').textContent = data.apiRequests;
+                            
+                            // Update change indicators
+                            document.getElementById('predictionsChange').textContent = data.predictionsChange;
+                            document.getElementById('accuracyChange').textContent = data.accuracyChange;
+                            document.getElementById('donorsChange').textContent = data.donorsChange;
+                            document.getElementById('matchesChange').textContent = data.matchesChange;
+                        }, 1000);
+                    }
+                })
+                .catch(error => console.error('Error loading stats:', error));
+            
+            // Load blood type distribution
+            fetch('/api/analytics/blood-type-distribution')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        bloodTypeChart.data.labels = result.labels;
+                        bloodTypeChart.data.datasets[0].data = result.data;
+                        bloodTypeChart.update();
+                    }
+                })
+                .catch(error => console.error('Error loading blood type data:', error));
+            
+            // Load accuracy trend
+            fetch('/api/analytics/accuracy-trend')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        accuracyChart.data.labels = result.labels;
+                        accuracyChart.data.datasets[0].data = result.data;
+                        accuracyChart.update();
+                    }
+                })
+                .catch(error => console.error('Error loading accuracy trend:', error));
+            
+            // Load prediction volume
+            fetch('/api/analytics/prediction-volume')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        volumeChart.data.labels = result.labels;
+                        volumeChart.data.datasets[0].data = result.data;
+                        volumeChart.update();
+                    }
+                })
+                .catch(error => console.error('Error loading prediction volume:', error));
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Blood Type Distribution Chart
+            const bloodTypeCtx = document.getElementById('bloodTypeChart').getContext('2d');
+            bloodTypeChart = new Chart(bloodTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#ef4444', '#f97316', '#eab308', '#22c55e',
+                            '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#0f172a',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0',
+                                padding: 15,
+                                font: { size: 13, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(99, 102, 241, 0.5)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    }
+                }
+            });
+
+            // Accuracy Trend Chart
+            const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+            accuracyChart = new Chart(accuracyCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Accuracy %',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: { size: 13, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(16, 185, 129, 0.5)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' },
+                                callback: value => value + '%'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Prediction Volume Chart
+            const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+            volumeChart = new Chart(volumeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Predictions',
+                        data: [],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: { size: 13, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(139, 92, 246, 0.5)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Urgency Level Chart
+            const urgencyCtx = document.getElementById('urgencyChart').getContext('2d');
+            window.urgencyChart = new Chart(urgencyCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#fbbf24', '#ef4444', '#3b82f6'],
+                        borderWidth: 3,
+                        borderColor: '#0f172a',
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0',
+                                padding: 15,
+                                font: { size: 13, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(251, 191, 36, 0.5)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    }
+                }
+            });
+
+            // Blood Group Demand Chart
+            const bloodGroupDemandCtx = document.getElementById('bloodGroupDemandChart').getContext('2d');
+            window.bloodGroupDemandChart = new Chart(bloodGroupDemandCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Emergency Requests',
+                        data: [],
+                        backgroundColor: '#ef4444',
+                        borderColor: '#dc2626',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#dc2626'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: { size: 13, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(239, 68, 68, 0.5)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load Recent Predictions from database
+        function loadRecentPredictions() {
+            fetch('/api/analytics/recent-predictions')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const predictionsList = document.getElementById('predictionsList');
+                        
+                        if (result.predictions.length === 0) {
+                            predictionsList.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 2rem;">No predictions found. Make your first prediction!</p>';
+                            return;
+                        }
+                        
+                        predictionsList.innerHTML = result.predictions.map(pred => `
+                            <div class="prediction-card">
+                                <div class="prediction-top">
+                                    <div class="blood-badge">${pred.bloodType}</div>
+                                    <div class="prediction-time">
+                                        <i class="far fa-clock"></i> ${pred.timestamp}
+                                    </div>
+                                </div>
+                                <div class="prediction-details">
+                                    <div class="prediction-user">
+                                        <i class="fas fa-user"></i> ${pred.user}
+                                    </div>
+                                    <div class="confidence-section">
+                                        <div class="confidence-label">
+                                            <span>Confidence Score</span>
+                                            <span>${pred.confidence}%</span>
+                                        </div>
+                                        <div class="confidence-bar-bg">
+                                            <div class="confidence-bar-fill" style="width: ${pred.confidence}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading predictions:', error);
+                    document.getElementById('predictionsList').innerHTML = 
+                        '<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading predictions. Please try again.</p>';
+                });
+        }
+
+        // Load Emergency Statistics
+        function loadEmergencyStats() {
+            fetch('/api/analytics/emergency-stats')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const data = result.data;
+                        
+                        // Update emergency stats
+                        animateValue('totalEmergencyRequests', 0, data.totalRequests, 2000);
+                        animateValue('emergencyMatchesFound', 0, data.successfulMatches, 2000);
+                        animateValue('totalDonorsMatched', 0, data.totalDonorsFound, 2000);
+                        animateValue('totalBanksMatched', 0, data.totalBanksFound, 2000);
+                        
+                        setTimeout(() => {
+                            document.getElementById('recentEmergencyRequests').textContent = data.recentRequests;
+                            document.getElementById('matchSuccessRate').textContent = data.matchRate + '%';
+                            document.getElementById('avgDonorsPerRequest').textContent = data.avgDonorsPerRequest;
+                            document.getElementById('avgBanksPerRequest').textContent = data.avgBanksPerRequest;
+                        }, 1000);
+                        
+                        // Update urgency chart
+                        if (window.urgencyChart) {
+                            const urgencyLabels = Object.keys(data.urgencyBreakdown);
+                            const urgencyData = Object.values(data.urgencyBreakdown);
+                            urgencyChart.data.labels = urgencyLabels;
+                            urgencyChart.data.datasets[0].data = urgencyData;
+                            urgencyChart.update();
+                        }
+                        
+                        // Update blood group demand chart
+                        if (window.bloodGroupDemandChart) {
+                            const bloodGroupLabels = Object.keys(data.bloodGroupRequests);
+                            const bloodGroupData = Object.values(data.bloodGroupRequests);
+                            bloodGroupDemandChart.data.labels = bloodGroupLabels;
+                            bloodGroupDemandChart.data.datasets[0].data = bloodGroupData;
+                            bloodGroupDemandChart.update();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error loading emergency stats:', error));
+        }
+
+        // Start Real-time Updates (refresh every 30 seconds)
+        function startRealtimeUpdates() {
+            updateInterval = setInterval(() => {
+                loadRealTimeData();
+                loadEmergencyStats();
+                loadRecentPredictions();
+            }, 30000); // Update every 30 seconds
+        }
+
+        // Animate Number
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    element.textContent = end.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Time Filter
+        function setTimeFilter(button, period) {
+            currentTimeFilter = period;
+            
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            showNotification(`Time filter set to: ${button.textContent.trim()}`);
+            
+            // Reload data with new filter (you can implement backend filtering)
+            loadRealTimeData();
+        }
+
+        // Generate Report
+        function generateReport(type, format) {
+            const card = event.currentTarget;
+            const originalHTML = card.innerHTML;
+            
+            card.innerHTML = `
+                <div class="download-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="download-title">Generating...</div>
+                <div class="download-desc">Please wait</div>
+            `;
+            
+            // Map report types to API endpoints
+            let endpoint = '';
+            if (type === 'Predictions' && format === 'PDF') {
+                endpoint = '/admin/api/reports/download/predictions-pdf';
+            } else if (type === 'Accuracy' && format === 'Excel') {
+                endpoint = '/admin/api/reports/download/accuracy-excel';
+            } else if (type === 'Donors' && format === 'CSV') {
+                endpoint = '/admin/api/reports/download/donors-csv';
+            } else if (type === 'System' && format === 'PDF') {
+                endpoint = '/admin/api/reports/download/system-performance-pdf';
+            }
+            
+            // Download the report
+            fetch(endpoint)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to generate report');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    
+                    // Set filename based on type and format
+                    const timestamp = new Date().toISOString().slice(0,10);
+                    let filename = `${type}_Report_${timestamp}`;
+                    if (format === 'PDF') {
+                        filename += '.pdf';
+                    } else if (format === 'Excel') {
+                        filename += '.xlsx';
+                    } else if (format === 'CSV') {
+                        filename += '.csv';
+                    }
+                    a.download = filename;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    card.innerHTML = originalHTML;
+                    showNotification(`${type} report (${format}) generated successfully!`);
+                })
+                .catch(error => {
+                    console.error('Error generating report:', error);
+                    card.innerHTML = originalHTML;
+                    showNotification(`Error generating report. Please try again.`);
+                });
+        }
+
+        // Show Notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        });
+    </script>
+</body>
+</html>
